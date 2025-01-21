@@ -1,0 +1,9 @@
+FROM mongo
+WORKDIR /data
+
+COPY ./combined_parliament_reports.csv .
+COPY ./init-mongo.sh .
+
+RUN chmod +x init-mongo.sh
+
+CMD ["sh", "-c", "/data/init-mongo.sh"]

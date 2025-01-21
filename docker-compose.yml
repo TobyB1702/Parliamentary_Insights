@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    restart: always
+    env_file:
+      - .env
+
+  backend:
+    build: ./backend/
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - mongo
+      - mongo_import
+      - ollama
+    env_file:
+      - .env
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    volumes:
+      - ./ollama:/ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  mongo_express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    env_file:
+      - .env
+
+  mongo_import:
+    build: ./data/
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    volumes:
+      - ./data:/data
+    entrypoint: ["/data/init-mongo.sh"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always

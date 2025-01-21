@@ -1,0 +1,10 @@
+database:
+  connection_string: "${ME_CONFIG_MONGODB_URL}"
+  db_name: "parliament_db"
+  collection_name: "parliament_collection"
+  field_names: ["Name", "Speech", "Time", "Date"]
+
+  
+model:
+  model_name: "${MODEL}"
+  model_url: "${MODEL_URL}"
